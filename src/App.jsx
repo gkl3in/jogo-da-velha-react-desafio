@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './styles.scss';
 
 /*
@@ -15,6 +15,22 @@ import './styles.scss';
     ? - avisar quando o jogo finalizar, caso dê velha avise também
     ? - fazer um risco na sequência vencedora, caso houver
 */
+
+const winningCombinations = [
+  // horizontals
+  { indexes: [0, 1, 2], orientation: 'horizontal' },
+  { indexes: [3, 4, 5], orientation: 'horizontal' },
+  { indexes: [6, 7, 8], orientation: 'horizontal' },
+
+  // verticals
+  { indexes: [0, 3, 6], orientation: 'vertical' },
+  { indexes: [1, 4, 7], orientation: 'vertical' },
+  { indexes: [0, 3, 6], orientation: 'vertical' },
+
+  // diagonals
+  { indexes: [0, 4, 8], orientation: 'diagonal-1' },
+  { indexes: [2, 4, 6], orientation: 'diagonal-2' },
+];
 
 function App() {
   const [gameData, setGameData] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0]);
@@ -34,19 +50,49 @@ function App() {
     });
 
     setTurn((prev) => (prev === 1 ? 2 : 1));
+
   };
+
+  useEffect(() => {
+    checkWinner();
+  }, [gameData]);
+
+  const checkWinner = () => {
+    let winner = null;
+
+    for (let combination of winningCombinations) {
+      const { indexes } = combination;
+      if (
+        gameData[indexes[0]] === 1 &&
+        gameData[indexes[1]] === 1 &&
+        gameData[indexes[2]] === 1
+      ) {
+        winner = 'player1';
+      }
+      if (
+        gameData[indexes[0]] === 2 &&
+        gameData[indexes[1]] === 2 &&
+        gameData[indexes[2]] === 2
+      ) {
+        winner = 'player2';
+      }
+    }
+    console.log({winner})
+  }
 
   return (
     <>
       <div className="board-game">
         {gameData.map((value, index) => (
-          <span 
-          onClick={() => {
-            handleClick(index);
-          }}
-            >{value === 1 && 'x'}
+          <span
+            onClick={() => {
+              handleClick(index);
+            }}
+            key={index}
+          >
+            {value === 1 && 'x'}
             {value === 2 && 'O'}
-            </span>
+          </span>
         ))}
       </div>
     </>
