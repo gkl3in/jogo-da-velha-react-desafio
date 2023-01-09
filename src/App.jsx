@@ -35,27 +35,42 @@ const winningCombinations = [
 function App() {
   const [gameData, setGameData] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0]);
   const [turn, setTurn] = useState(1);
+  const [winningCombo, setWinningCombo] = useState(null);
 
   const handleClick = (clickedIndex) => {
-    console.log(clickedIndex);
-
     if (gameData[clickedIndex] !== 0) {
+      return;
+    }
+    if (winningCombo) {
       return;
     }
 
     setGameData((prev) => {
       const newGameData = [...prev];
       newGameData[clickedIndex] = turn;
+
       return newGameData;
     });
 
     setTurn((prev) => (prev === 1 ? 2 : 1));
-
   };
 
   useEffect(() => {
     checkWinner();
+    checkGameEnded();
   }, [gameData]);
+
+  useEffect(() => {
+    if (winningCombo) {
+      alert('jogo teve um vencedor.');
+    }
+  }, [winningCombo]);
+
+  const checkGameEnded = () => {
+    if (gameData.every((item) => item !== 0)) {
+      alert('jogo acabou, deu velha');
+    }
+  };
 
   const checkWinner = () => {
     let winner = null;
@@ -76,22 +91,31 @@ function App() {
       ) {
         winner = 'player2';
       }
+      if (winner) {
+        setWinningCombo(combination);
+        break;
+      }
     }
-    console.log({winner})
-  }
+  };
 
   return (
     <>
-      <div className="board-game">
+      <div className='board-game'>
         {gameData.map((value, index) => (
           <span
             onClick={() => {
               handleClick(index);
             }}
             key={index}
+            className={
+              winningCombo?.indexes.includes(index)
+                ? winningCombo.orientation
+                : undefined
+            }
           >
-            {value === 1 && 'x'}
-            {value === 2 && 'O'}
+            <abbr title=''>{index}</abbr>
+            {value === 1 && '❌'}
+            {value === 2 && '⭕️'}
           </span>
         ))}
       </div>
